@@ -116,7 +116,7 @@ delete-mainservice: delete_kube_deploy
 build: 
 	@echo ""
 	@echo "\033[1;30mBuilding image ${DOCKER_IMAGE}_$(ARCH):${SERVICE_VERSION} \033[0m"
-	@cd ../../../../../${IMAGE_NAME} ; \
+	@cd ../../../${IMAGE_NAME} ; \
 	mvn clean package; \
 	docker build --platform linux/${ARCH} --pull -t ${DOCKER_IMAGE}_$(ARCH):${SERVICE_VERSION} .
 
