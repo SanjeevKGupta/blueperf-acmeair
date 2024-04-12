@@ -1,0 +1,11 @@
+{
+    "MetadataVars": {
+	"K_NS_SUFFIX": "auth",
+        "K_DEPLOY_NAME": "acmeair-authservice",
+        "K_SERVICE_NAME": "acmeair-auth-service",
+        "IMAGE_NAME": "acmeair-authservice-java",
+        "DOCKER_IMAGE": "$(CR_HOST)/$(CR_HOST_NAMESPACE)/$(EDGE_OWNER).$(EDGE_DEPLOY).acmeair-authservice-java",
+        "SERVICE_NAME": "$(EDGE_OWNER).$(EDGE_DEPLOY).acmeair-authservice-java",
+        "SERVICE_VERSION": "1.0.0"
+    }
+}

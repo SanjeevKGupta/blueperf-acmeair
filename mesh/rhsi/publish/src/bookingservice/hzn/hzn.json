@@ -1,0 +1,11 @@
+{
+    "MetadataVars": {
+	"K_NS_SUFFIX": "booking",
+        "K_DEPLOY_NAME": "acmeair-bookingservice",
+        "K_SERVICE_NAME": "acmeair-booking-service",
+        "IMAGE_NAME": "acmeair-bookingservice-java",
+        "DOCKER_IMAGE": "$(CR_HOST)/$(CR_HOST_NAMESPACE)/$(EDGE_OWNER).$(EDGE_DEPLOY).acmeair-bookingservice-java",
+        "SERVICE_NAME": "$(EDGE_OWNER).$(EDGE_DEPLOY).acmeair-bookingservice-java",
+        "SERVICE_VERSION": "1.0.0"
+    }
+}
