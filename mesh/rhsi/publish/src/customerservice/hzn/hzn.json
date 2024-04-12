@@ -3,6 +3,7 @@
 	"K_NS_SUFFIX": "customer",
         "K_DEPLOY_NAME": "acmeair-customerservice",
         "K_SERVICE_NAME": "acmeair-customer-service",
+        "K_DB_NAME": "acmeair-customer-db",
         "IMAGE_NAME": "acmeair-customerservice-java",
         "DOCKER_IMAGE": "$(CR_HOST)/$(CR_HOST_NAMESPACE)/$(EDGE_OWNER).$(EDGE_DEPLOY).acmeair-customerservice-java",
         "SERVICE_NAME": "$(EDGE_OWNER).$(EDGE_DEPLOY).acmeair-customerservice-java",

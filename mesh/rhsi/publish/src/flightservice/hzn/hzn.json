@@ -3,6 +3,7 @@
 	"K_NS_SUFFIX": "flight",
         "K_DEPLOY_NAME": "acmeair-flightservice",
         "K_SERVICE_NAME": "acmeair-flight-service",
+        "K_DB_NAME": "acmeair-flight-db",
         "IMAGE_NAME": "acmeair-flightservice-java",
         "DOCKER_IMAGE": "$(CR_HOST)/$(CR_HOST_NAMESPACE)/$(EDGE_OWNER).$(EDGE_DEPLOY).acmeair-flightservice-java",
         "SERVICE_NAME": "$(EDGE_OWNER).$(EDGE_DEPLOY).acmeair-flightservice-java",
