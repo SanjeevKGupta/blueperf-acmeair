@@ -49,6 +49,7 @@ make build-push-flightservice
 make build-push-mainservice
 ```
 ### Deploy the application
+if you are deploying directly, you will still need to setup above ENVIRONMENT variables for the `make` command to work. Reach out to me for thise values.
 5. Log into the target K8s cluster
 6. Extract `KUBECONFIG` and export
 ```
