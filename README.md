@@ -49,6 +49,8 @@ make build-push-flightservice
 make build-push-mainservice
 ```
 ### Deploy the application
+If you are deploying directly, you will still need to setup above ENVIRONMENT variables for the `make` command to work. Reach out to me for these values.
+
 5. Log into the target K8s cluster
 6. Extract `KUBECONFIG` and export
 ```
@@ -69,10 +71,18 @@ make deploy-mainservice
 ```
 kubectl get ing -n <mainservice-namespace>
 ```
-9. Access usign ingress-url with path as `/acmeair`
+9. Access using ingress-url with path as `/acmeair`
 ```
 http://<ingress-url>/acmeair/
 ```
+10. Login using the UI. Use the default as prompted.
+11. Initialize various databses using the UI or CLI
+```
+curl http://acmeair.apps.your.clusterhost.com/booking/loader/load
+curl http://acmeair.apps.your.clusterhost.com/flight/loader/load
+curl http://acmeair.apps.your.clusterhost.com/customer/loader/load?numCustomers=10000
+```
+Reference: https://github.com/blueperf/acmeair-mainservice-java
 
 
 
