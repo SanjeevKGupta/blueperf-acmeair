@@ -1,6 +1,5 @@
 {
     "MetadataVars": {
-	"K_NS_SUFFIX": "booking",
         "K_DEPLOY_NAME": "acmeair-bookingservice",
         "K_SERVICE_NAME": "acmeair-booking-service",
         "K_DB_NAME": "acmeair-booking-db",

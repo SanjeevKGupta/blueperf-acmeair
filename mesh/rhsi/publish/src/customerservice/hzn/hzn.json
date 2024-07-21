@@ -1,6 +1,5 @@
 {
     "MetadataVars": {
-	"K_NS_SUFFIX": "customer",
         "K_DEPLOY_NAME": "acmeair-customerservice",
         "K_SERVICE_NAME": "acmeair-customer-service",
         "K_DB_NAME": "acmeair-customer-db",

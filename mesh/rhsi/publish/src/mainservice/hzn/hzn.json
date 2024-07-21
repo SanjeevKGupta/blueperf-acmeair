@@ -1,6 +1,5 @@
 {
     "MetadataVars": {
-	"K_NS_SUFFIX": "main",
         "K_DEPLOY_NAME": "acmeair-mainservice",
         "K_SERVICE_NAME": "acmeair-main-service",
         "IMAGE_NAME": "acmeair-mainservice-java",

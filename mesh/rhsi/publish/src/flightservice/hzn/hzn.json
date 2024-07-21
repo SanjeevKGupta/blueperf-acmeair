@@ -1,6 +1,5 @@
 {
     "MetadataVars": {
-	"K_NS_SUFFIX": "flight",
         "K_DEPLOY_NAME": "acmeair-flightservice",
         "K_SERVICE_NAME": "acmeair-flight-service",
         "K_DB_NAME": "acmeair-flight-db",

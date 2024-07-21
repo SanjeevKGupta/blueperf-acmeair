@@ -6,4 +6,4 @@ spec:
         image: ${DOCKER_IMAGE}_${ARCH}:${SERVICE_VERSION}
         imagePullPolicy: Always
       imagePullSecrets:
-      - name: ${NAMESPACE_GRP}-${K_NS_SUFFIX}-image-pull-secret
+      - name: ${NAMESPACE}-image-pull-secret

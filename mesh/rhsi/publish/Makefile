@@ -3,23 +3,52 @@
 #
 # Usage
 ####################################################
+# make build-push-mainservice 
 # make build-push-authservice 
 # make build-push-bookingservice 
 # make build-push-customerservice 
 # make build-push-flightservice 
-# make build-push-mainservice 
 #
-# make deploy-authservice NAMESPACE_GRP=zz-test
-# make deploy-bookingservice NAMESPACE_GRP=zz-test
-# make deploy-customerservice NAMESPACE_GRP=zz-test
-# make deploy-flightservice NAMESPACE_GRP=zz-test
-# make deploy-mainservice NAMESPACE_GRP=zz-test
+# Note: main and auth do not have DB, booking, customer and flight have.
 #
-# make delete-authservice NAMESPACE_GRP=zz-test
-# make delete-bookingservice NAMESPACE_GRP=zz-test
-# make delete-customerservice NAMESPACE_GRP=zz-test
-# make delete-flightservice NAMESPACE_GRP=zz-test
-# make delete-mainservice NAMESPACE_GRP=zz-test
+# To deploy service and corresponding db in the same namespace
+# ---======---------------------------------------------------
+# make deploy-mainservice NAMESPACE=zz-test-main
+# make deploy-authservice NAMESPACE=zz-test-auth
+# make deploy-bookingservice-db NAMESPACE=zz-test-booking
+# make deploy-customerservice-db NAMESPACE=zz-test-customer
+# make deploy-flightservice-db NAMESPACE=zz-test-flight
+#
+# To deploy only service in target namespace
+# ---======---------------------------------
+# make deploy-mainservice NAMESPACE=zz-test-service
+# make deploy-authservice NAMESPACE=zz-test-service
+# make deploy-bookingservice NAMESPACE=zz-test-service
+# make deploy-customerservice NAMESPACE=zz-test-service
+# make deploy-flightservice NAMESPACE=zz-test-service
+#
+# To deploy db service in target namespace
+# ---======-------------------------------
+# make deploy-booking-db NAMESPACE=zz-test-db
+# make deploy-customer-db NAMESPACE=zz-test-db
+# make deploy-flight-db NAMESPACE=zz-test-db
+#
+# To delete deployment and service
+# ---======-----------------------
+# make delete-mainservice NAMESPACE=zz-test
+# make delete-authservice NAMESPACE=zz-test
+#
+# make delete-bookingservice-db NAMESPACE=zz-test
+# make delete-customerservice-db NAMESPACE=zz-test
+# make delete-flightservice-db NAMESPACE=zz-test
+#
+# make delete-bookingservice NAMESPACE=zz-test-service
+# make delete-customerservice NAMESPACE=zz-test-service
+# make delete-flightservice NAMESPACE=zz-test-service
+#
+# make delete-booking-db NAMESPACE=zz-test-db
+# make delete-customer-db NAMESPACE=zz-test-db
+# make delete-flight-db NAMESPACE=zz-test-db
 #
 ####################################################
 
@@ -28,24 +57,24 @@
 -include ./env.var.app.image.mk
 
 # Load customized ENV vars for build, push and k8s deployment
+ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-mainservice deploy-mainservice delete-mainservice))
+-include hzn.json.mainservice.mk
+endif
+
 ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-authservice deploy-authservice delete-authservice))
 -include hzn.json.authservice.mk
 endif
 
-ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-bookingservice deploy-bookingservice delete-bookingservice))
+ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-bookingservice deploy-bookingservice-db deploy-bookingservice deploy-booking-db delete-bookingservice-db delete-bookingservice delete-booking-db))
 -include hzn.json.bookingservice.mk
 endif
 
-ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-customerservice deploy-customerservice delete-customerservice))
+ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-customerservice deploy-customerservice-db deploy-customerservice deploy-customer-db delete-customerservice-db delete-customerservice delete-customer-db))
 -include hzn.json.customerservice.mk
 endif
 
-ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-flightservice deploy-flightservice delete-flightservice))
+ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-flightservice deploy-flightservice-db deploy-flightservice deploy-flight-db delete-flightservice-db delete-flightservice delete-flight-db))
 -include hzn.json.flightservice.mk
-endif
-
-ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-mainservice deploy-mainservice delete-mainservice))
--include hzn.json.mainservice.mk
 endif
 
 # Create customized ENV vars for build, push and k8s deployment
@@ -81,7 +110,19 @@ build-push-mainservice: build push
 	@echo ${DOCKER_IMAGE}
 
 #deploy k8s pods, services etc. apply_kube patches the default with image form custom authenticated image registry 
+deploy-mainservice: create_image_pull_secret apply_kube
+	@echo ${DOCKER_IMAGE}
+
 deploy-authservice: create_image_pull_secret apply_kube
+	@echo ${DOCKER_IMAGE}
+
+deploy-bookingservice-db: create_image_pull_secret apply_kube apply_db
+	@echo ${DOCKER_IMAGE}
+
+deploy-customerservice-db: create_image_pull_secret apply_kube apply_db
+	@echo ${DOCKER_IMAGE}
+
+deploy-flightservice-db: create_image_pull_secret apply_kube apply_db
 	@echo ${DOCKER_IMAGE}
 
 deploy-bookingservice: create_image_pull_secret apply_kube
@@ -93,24 +134,50 @@ deploy-customerservice: create_image_pull_secret apply_kube
 deploy-flightservice: create_image_pull_secret apply_kube
 	@echo ${DOCKER_IMAGE}
 
-deploy-mainservice: create_image_pull_secret apply_kube
+deploy-booking-db: apply_db
+	@echo ${DOCKER_IMAGE}
+
+deploy-customer-db: apply_db
+	@echo ${DOCKER_IMAGE}
+
+deploy-flight-db: apply_db
 	@echo ${DOCKER_IMAGE}
 
 # Delete deployment and services
+delete-mainservice: delete_kube_deploy
+	@echo "Deleted ${K_DEPLOY_NAME}"
+
 delete-authservice: delete_kube_deploy
 	@echo "Deleted ${K_DEPLOY_NAME}"
 
-delete-bookingservice: delete_kube_deploy delete_kube_db
+delete-bookingservice-db: delete_kube_deploy delete_kube_db
 	@echo "Deleted ${K_DEPLOY_NAME}"
 
-delete-customerservice: delete_kube_deploy delete_kube_db
+delete-customerservice-db: delete_kube_deploy delete_kube_db
 	@echo "Deleted ${K_DEPLOY_NAME}"
 
-delete-flightservice: delete_kube_deploy delete_kube_db
+delete-flightservice-db: delete_kube_deploy delete_kube_db
 	@echo "Deleted ${K_DEPLOY_NAME}"
 
-delete-mainservice: delete_kube_deploy
+delete-bookingservice: delete_kube_deploy
 	@echo "Deleted ${K_DEPLOY_NAME}"
+
+delete-customerservice: delete_kube_deploy
+	@echo "Deleted ${K_DEPLOY_NAME}"
+
+delete-flightservice: delete_kube_deploy
+	@echo "Deleted ${K_DEPLOY_NAME}"
+
+delete-booking-db: delete_kube_db
+	@echo "Deleted ${K_DEPLOY_NAME}"
+
+delete-customer-db: delete_kube_db
+	@echo "Deleted ${K_DEPLOY_NAME}"
+
+delete-flight-db: delete_kube_db
+	@echo "Deleted ${K_DEPLOY_NAME}"
+
+
 
 ############
 build: 
@@ -130,40 +197,46 @@ push:
 	@docker push $(DOCKER_IMAGE)_$(ARCH):$(SERVICE_VERSION)
 
 check_var_namespace:
-	$(call cmd_var_check,NAMESPACE_GRP,as make <target> NAMESPACE_GRP=<namespace-grp>)
+	$(call cmd_var_check,NAMESPACE,as make <target> NAMESPACE=<namespace>)
 	@echo ""
-	@echo "NAMESPACE_GRP: ${NAMESPACE_GRP}"
+	@echo "NAMESPACE: ${NAMESPACE}"
 
 create_namespace: check_var_namespace
-	@echo "Creating namespace: ${NAMESPACE_GRP}-${K_NS_SUFFIX}"
-	$(shell kubectl create namespace ${NAMESPACE_GRP}-${K_NS_SUFFIX} > /dev/null 2>&1)
+	@echo "Creating namespace: ${NAMESPACE}"
+	$(shell kubectl create namespace ${NAMESPACE} > /dev/null 2>&1)
 
 create_image_pull_secret: create_namespace
-	@echo "Creating image pull secret: ${NAMESPACE_GRP}-${K_NS_SUFFIX}-image-pull-secret"
-	$(shell kubectl create secret docker-registry ${NAMESPACE_GRP}-${K_NS_SUFFIX}-image-pull-secret -n ${NAMESPACE_GRP}-${K_NS_SUFFIX} --docker-server=${CR_HOST} --docker-username=${CR_HOST_USERNAME} --docker-password=${CR_APP_API_KEY_RO_PULL} --docker-email="" > /dev/null 2>&1)
+	@echo "Creating image pull secret: ${NAMESPACE}-image-pull-secret"
+	$(shell kubectl create secret docker-registry ${NAMESPACE}-image-pull-secret -n ${NAMESPACE} --docker-server=${CR_HOST} --docker-username=${CR_HOST_USERNAME} --docker-password=${CR_APP_API_KEY_RO_PULL} --docker-email="" > /dev/null 2>&1)
 
-apply_kube: create_image_pull_secret
+#apply_kube: create_image_pull_secret
+apply_kube: 
 	@echo ""
 	@echo "\033[1;30mDeleting existing deployment ${K_DEPLOY_NAME} \033[0m"
-	$(shell kubectl delete deploy ${K_DEPLOY_NAME} -n ${NAMESPACE_GRP}-${K_NS_SUFFIX} > /dev/null 2>&1)
-	$(shell kubectl delete service ${K_SERVICE_NAME} -n ${NAMESPACE_GRP}-${K_NS_SUFFIX} > /dev/null 2>&1)
+	$(shell kubectl delete deploy ${K_DEPLOY_NAME} -n ${NAMESPACE} > /dev/null 2>&1)
+	$(shell kubectl delete service ${K_SERVICE_NAME} -n ${NAMESPACE} > /dev/null 2>&1)
 
 	@echo ""
-	@echo "\033[1;30mCreating new deployment in namespace ${NAMESPACE_GRP}-${K_NS_SUFFIX} \033[0m"
-	kubectl apply -n ${NAMESPACE_GRP}-${K_NS_SUFFIX} -f ../../../${IMAGE_NAME}/manifests
+	@echo "\033[1;30mCreating new deployment in namespace ${NAMESPACE} \033[0m"
+	kubectl apply -n ${NAMESPACE} -f ../../../${IMAGE_NAME}/manifests-mesh/deploy-${K_DEPLOY_NAME}.yaml
 
 	@echo ""
-	@echo "\033[1;30mpatching deployment in namespace ${NAMESPACE_GRP}-${K_NS_SUFFIX} \033[0m"
-	envsubst < ./kube/deploy-patch.yaml.tmpl > ./kube/deploy-${K_NS_SUFFIX}-patch.yaml | kubectl patch deployment ${K_DEPLOY_NAME} -n ${NAMESPACE_GRP}-${K_NS_SUFFIX} --patch-file ./kube/deploy-${K_NS_SUFFIX}-patch.yaml
+	@echo "\033[1;30mpatching deployment in namespace ${NAMESPACE} \033[0m"
+	envsubst < ./kube/deploy-patch.yaml.tmpl > ./kube/deploy-patch.yaml | kubectl patch deployment ${K_DEPLOY_NAME} -n ${NAMESPACE} --patch-file ./kube/deploy-patch.yaml
+
+apply_db: create_namespace
+	@echo ""
+	@echo "\033[1;30mCreating new deployment in namespace ${NAMESPACE} \033[0m"
+	kubectl apply -n ${NAMESPACE} -f ../../../${IMAGE_NAME}/manifests-mesh/deploy-${K_DEPLOY_NAME}-db.yaml
 
 delete_kube_deploy: check_var_namespace
 	@echo ""
-	@echo "\033[1;30mDeleting existing deployment ${K_DEPLOY_NAME} in ${NAMESPACE_GRP}-${K_NS_SUFFIX}\033[0m"
-	$(shell kubectl delete deploy ${K_DEPLOY_NAME} -n ${NAMESPACE_GRP}-${K_NS_SUFFIX} > /dev/null 2>&1)
-	$(shell kubectl delete service ${K_SERVICE_NAME} -n ${NAMESPACE_GRP}-${K_NS_SUFFIX} > /dev/null 2>&1)
+	@echo "\033[1;30mDeleting existing deployment ${K_DEPLOY_NAME} in ${NAMESPACE}\033[0m"
+	$(shell kubectl delete deploy ${K_DEPLOY_NAME} -n ${NAMESPACE} > /dev/null 2>&1)
+	$(shell kubectl delete service ${K_SERVICE_NAME} -n ${NAMESPACE} > /dev/null 2>&1)
 
 delete_kube_db: check_var_namespace
 	@echo ""
-	@echo "\033[1;30mDeleting existing deployment ${K_DB_NAME} in ${NAMESPACE_GRP}-${K_NS_SUFFIX}\033[0m"
-	$(shell kubectl delete deploy ${K_DB_NAME} -n ${NAMESPACE_GRP}-${K_NS_SUFFIX} > /dev/null 2>&1)
-	$(shell kubectl delete service ${K_DB_NAME} -n ${NAMESPACE_GRP}-${K_NS_SUFFIX} > /dev/null 2>&1)
+	@echo "\033[1;30mDeleting existing deployment ${K_DB_NAME} in ${NAMESPACE}\033[0m"
+	$(shell kubectl delete deploy ${K_DB_NAME} -n ${NAMESPACE} > /dev/null 2>&1)
+	$(shell kubectl delete service ${K_DB_NAME} -n ${NAMESPACE} > /dev/null 2>&1)
