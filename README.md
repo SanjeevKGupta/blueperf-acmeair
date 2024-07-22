@@ -5,6 +5,8 @@ To clone, build, push and deploy Acme Air micro-services app
 - [Prepare source repos by cloning various repos](#prepare-source-repos)
 - [Build and push images](#build-and-push-images)
 - [Deploy the application](#deploy-the-application)
+  - [Each service and corresponding database together in one namespace](#each-service-with-its-database)
+  - [All services in one namespace and all databases in one namespace](#all-services-and-all-databases)   
 - [View application in the browser](#view-application-in-the-browser)
 ### Prepare source repos
 1. Git clone this repo
@@ -58,13 +60,35 @@ kc config view --raw --minify > kubeconfig-<cluster>.yaml
 export KUBECONFIG=kubeconfig-<cluster>.yaml
 ```
 7. Deploy the services
-This will create all the l8s obehects - deploy, pod, services etc. mainservice provides the ingress URL used bt the app.
+This will create all the k8s objects - deploy, pod, services etc.
+- `mainservice` provides the ingress URL used bt the app.
+- `mainservice` abd `authservice` do not have backend databases. Other three services have.
+
+#### Each service with its database
+Each service and corresponding database together in one namespace.
 ```
-make deploy-authservice
-make deploy-bookingservice
-make deploy-customerservice
-make deploy-flightservice
-make deploy-mainservice
+make deploy-mainservice NAMESPACE=zz-test-main
+make deploy-authservice NAMESPACE=zz-test-auth
+make deploy-bookingservice-db NAMESPACE=zz-test-booking
+make deploy-customerservice-db NAMESPACE=zz-test-customer
+make deploy-flightservice-db NAMESPACE=zz-test-flight
+```
+#### All services and all databases
+All services in one namespace and all databases in one namespace.
+```
+make deploy-mainservice NAMESPACE=zz-test-grp-main
+
+make deploy-authservice NAMESPACE=zz-test-gro-service
+make deploy-bookingservice NAMESPACE=zz-test-gro-service
+make deploy-customerservice NAMESPACE=zz-test-gro-service
+make deploy-flightservice NAMESPACE=zz-test-gro-service
+make deploy-booking-db NAMESPACE=zz-test-gro-service
+make deploy-customer-db NAMESPACE=zz-test-gro-service
+make deploy-flight-db NAMESPACE=zz-test-gro-service
+
+make deploy-booking-db NAMESPACE=zz-test-gro-db
+make deploy-customer-db NAMESPACE=zz-test-gro-db
+make deploy-flight-db NAMESPACE=zz-test-gro-db
 ```
 ### View application in the browser
 8. Get the `ingress` from the namespace where `mainservice` is running 
