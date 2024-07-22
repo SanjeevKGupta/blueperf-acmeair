@@ -61,11 +61,11 @@ export KUBECONFIG=kubeconfig-<cluster>.yaml
 ```
 7. Deploy the services
 This will create all the k8s objects - deploy, pod, services etc.
-- `mainservice` provides the ingress URL used bt the app.
-- `mainservice` abd `authservice` do not have backend databases. Other three services have.
+- `mainservice` provides the ingress URL used by the app.
+- `mainservice` and `authservice` do not have backend databases. Other three services have.
 
 #### Each service with its database
-Each service and corresponding database together in one namespace.
+Each service and corresponding database together in one namespace each.
 ```
 make deploy-mainservice NAMESPACE=zz-test-main
 make deploy-authservice NAMESPACE=zz-test-auth
@@ -74,7 +74,7 @@ make deploy-customerservice-db NAMESPACE=zz-test-customer
 make deploy-flightservice-db NAMESPACE=zz-test-flight
 ```
 #### All services and all databases
-All services in one namespace and all databases in one namespace.
+All services in one namespace and all databases in one namespace. `mainservice` (UI) in a seperate namespace.
 ```
 make deploy-mainservice NAMESPACE=zz-test-grp-main
 
