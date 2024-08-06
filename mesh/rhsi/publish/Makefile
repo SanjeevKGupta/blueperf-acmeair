@@ -13,25 +13,25 @@
 #
 # To deploy service and corresponding db in the same namespace
 # ---======---------------------------------------------------
-# make deploy-mainservice NAMESPACE=zz-test-main
-# make deploy-authservice NAMESPACE=zz-test-auth
-# make deploy-bookingservice-db NAMESPACE=zz-test-booking
-# make deploy-customerservice-db NAMESPACE=zz-test-customer
-# make deploy-flightservice-db NAMESPACE=zz-test-flight
+# make deploy-mainservice NAMESPACE=zz-test-main CLUSTER_TYPE=ROKS/K8S
+# make deploy-authservice NAMESPACE=zz-test-auth CLUSTER_TYPE=ROKS/K8S
+# make deploy-bookingservice-db NAMESPACE=zz-test-booking CLUSTER_TYPE=ROKS/K8S
+# make deploy-customerservice-db NAMESPACE=zz-test-customer CLUSTER_TYPE=ROKS/K8S
+# make deploy-flightservice-db NAMESPACE=zz-test-flight CLUSTER_TYPE=ROKS/K8S
 #
 # To deploy only service in target namespace
 # ---======---------------------------------
-# make deploy-mainservice NAMESPACE=zz-test-service
-# make deploy-authservice NAMESPACE=zz-test-service
-# make deploy-bookingservice NAMESPACE=zz-test-service
-# make deploy-customerservice NAMESPACE=zz-test-service
-# make deploy-flightservice NAMESPACE=zz-test-service
+# make deploy-mainservice NAMESPACE=zz-test-service CLUSTER_TYPE=ROKS/K8S
+# make deploy-authservice NAMESPACE=zz-test-service CLUSTER_TYPE=ROKS/K8S
+# make deploy-bookingservice NAMESPACE=zz-test-service CLUSTER_TYPE=ROKS/K8S
+# make deploy-customerservice NAMESPACE=zz-test-service CLUSTER_TYPE=ROKS/K8S
+# make deploy-flightservice NAMESPACE=zz-test-service CLUSTER_TYPE=ROKS/K8S
 #
 # To deploy db service in target namespace
 # ---======-------------------------------
-# make deploy-booking-db NAMESPACE=zz-test-db
-# make deploy-customer-db NAMESPACE=zz-test-db
-# make deploy-flight-db NAMESPACE=zz-test-db
+# make deploy-booking-db NAMESPACE=zz-test-db CLUSTER_TYPE=ROKS/K8S
+# make deploy-customer-db NAMESPACE=zz-test-db CLUSTER_TYPE=ROKS/K8S
+# make deploy-flight-db NAMESPACE=zz-test-db CLUSTER_TYPE=ROKS/K8S
 #
 # To delete deployment and service
 # ---======-----------------------
@@ -196,12 +196,17 @@ push:
 	@echo "\033[1;30mPushing image $(DOCKER_IMAGE)_$(ARCH):$(SERVICE_VERSION) \033[0m"
 	@docker push $(DOCKER_IMAGE)_$(ARCH):$(SERVICE_VERSION)
 
+check_var_cluster_type:
+	$(call cmd_var_check,CLUSTER_TYPE,as make <target> CLUSTER_TYPE=<ROKS/K8S>)
+	@echo ""
+	@echo "CLUSTER_TYPE: ${CLUSTER_TYPE}"
+
 check_var_namespace:
 	$(call cmd_var_check,NAMESPACE,as make <target> NAMESPACE=<namespace>)
 	@echo ""
 	@echo "NAMESPACE: ${NAMESPACE}"
 
-create_namespace: check_var_namespace
+create_namespace: check_var_namespace check_var_cluster_type
 	@echo "Creating namespace: ${NAMESPACE}"
 	$(shell kubectl create namespace ${NAMESPACE} > /dev/null 2>&1)
 
@@ -209,8 +214,23 @@ create_image_pull_secret: create_namespace
 	@echo "Creating image pull secret: ${NAMESPACE}-image-pull-secret"
 	$(shell kubectl create secret docker-registry ${NAMESPACE}-image-pull-secret -n ${NAMESPACE} --docker-server=${CR_HOST} --docker-username=${CR_HOST_USERNAME} --docker-password=${CR_APP_API_KEY_RO_PULL} --docker-email="" > /dev/null 2>&1)
 
+apply_roks_main_lb: check_var_cluster_type
+ifeq (${CLUSTER_TYPE},ROKS)
+  ifeq (${K_DEPLOY_NAME},acmeair-mainservice)
+	@echo "${K_DEPLOY_NAME}"
+	@echo "CLUSTER_TYPE: ${CLUSTER_TYPE}"
+  endif
+endif
+
+roks_extra:
+ifeq (${CLUSTER_TYPE},ROKS)
+	@echo ""
+	@echo "CLUSTER_TYPE: ${CLUSTER_TYPE}"
+	@oc adm policy add-scc-to-user anyuid -z default -n ${NAMESPACE}
+endif
+
 #apply_kube: create_image_pull_secret
-apply_kube: 
+apply_kube: roks_extra
 	@echo ""
 	@echo "\033[1;30mDeleting existing deployment ${K_DEPLOY_NAME} \033[0m"
 	$(shell kubectl delete deploy ${K_DEPLOY_NAME} -n ${NAMESPACE} > /dev/null 2>&1)
@@ -223,6 +243,13 @@ apply_kube:
 	@echo ""
 	@echo "\033[1;30mpatching deployment in namespace ${NAMESPACE} \033[0m"
 	envsubst < ./kube/deploy-patch.yaml.tmpl > ./kube/deploy-patch.yaml | kubectl patch deployment ${K_DEPLOY_NAME} -n ${NAMESPACE} --patch-file ./kube/deploy-patch.yaml
+
+ifeq (${CLUSTER_TYPE},ROKS)
+  ifeq (${K_DEPLOY_NAME},acmeair-mainservice)
+	kubectl apply -n ${NAMESPACE} -f ../../../${IMAGE_NAME}/manifests-mesh/deploy-${K_DEPLOY_NAME}-lb.yaml
+  endif
+endif
+
 
 apply_db: create_namespace
 	@echo ""
