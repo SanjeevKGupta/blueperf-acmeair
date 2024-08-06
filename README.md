@@ -4,7 +4,7 @@ To clone, build, push and deploy Acme Air micro-services app
 
 - [Prepare source repos by cloning various repos](#prepare-source-repos)
 - [Build and push images](#build-and-push-images)
-- [Deploy the application](#deploy-the-application)
+- [Deploy the application - Two variations](#deploy-the-application)
   - [Each service and corresponding database together in one namespace](#each-service-with-its-database)
   - [All services in one namespace and all databases in one namespace](#all-services-and-all-databases)   
 - [View application in the browser](#view-application-in-the-browser)
