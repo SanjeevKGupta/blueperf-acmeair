@@ -65,7 +65,7 @@ This will create all the k8s objects - deploy, pod, services etc.
 - `mainservice` and `authservice` do not have backend databases. Other three services have.
 
 #### Each service with its database
-Each service and corresponding database together in one namespace each.
+Each service and corresponding database together in one namespace each. You should change the namespace name as per your preference. Below are examples.
 ```
 make deploy-mainservice NAMESPACE=zz-test-main CLUSTER_TYPE=ROKS/K8S
 make deploy-authservice NAMESPACE=zz-test-auth CLUSTER_TYPE=ROKS/K8S
