@@ -96,7 +96,7 @@ make deploy-flight-db NAMESPACE=zz-test-gro-db CLUSTER_TYPE=ROKS/K8S
 ```
 kubectl get ing -n <mainservice-namespace>
 ```
-9. Access using ingress ot Loadbalancer url with path as `/acmeair`
+9. Access using ingress or Loadbalancer url with path as `/acmeair`
 ```
 http://<url>/acmeair/
 ```
