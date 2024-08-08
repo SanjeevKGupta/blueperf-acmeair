@@ -79,19 +79,19 @@ endif
 
 # Create customized ENV vars for build, push and k8s deployment
 hzn.json.authservice.mk: src/authservice/hzn/hzn.json
-	@ hzn util configconv -f $< > $@
+	@cat $< | jq -r .MetadataVars | jq -r 'to_entries|map("export \(.key)=\(.value|tostring)")|.[]' > $@
 
 hzn.json.bookingservice.mk: src/bookingservice/hzn/hzn.json
-	@ hzn util configconv -f $< > $@
+	@cat $< | jq -r .MetadataVars | jq -r 'to_entries|map("export \(.key)=\(.value|tostring)")|.[]' > $@
 
 hzn.json.customerservice.mk: src/customerservice/hzn/hzn.json
-	@ hzn util configconv -f $< > $@
+	@cat $< | jq -r .MetadataVars | jq -r 'to_entries|map("export \(.key)=\(.value|tostring)")|.[]' > $@
 
 hzn.json.flightservice.mk: src/flightservice/hzn/hzn.json
-	@ hzn util configconv -f $< > $@
+	@cat $< | jq -r .MetadataVars | jq -r 'to_entries|map("export \(.key)=\(.value|tostring)")|.[]' > $@
 
 hzn.json.mainservice.mk: src/mainservice/hzn/hzn.json
-	@ hzn util configconv -f $< > $@
+	@cat $< | jq -r .MetadataVars | jq -r 'to_entries|map("export \(.key)=\(.value|tostring)")|.[]' > $@
 
 #build and push images. Bulid takes long time
 build-push-authservice: build push
@@ -177,8 +177,6 @@ delete-customer-db: delete_kube_db
 delete-flight-db: delete_kube_db
 	@echo "Deleted ${K_DEPLOY_NAME}"
 
-
-
 ############
 build: 
 	@echo ""
@@ -243,24 +241,27 @@ apply_kube: roks_extra
 	@echo ""
 	@echo "\033[1;30mpatching deployment in namespace ${NAMESPACE} \033[0m"
 	envsubst < ./kube/deploy-patch.yaml.tmpl > ./kube/deploy-patch.yaml | kubectl patch deployment ${K_DEPLOY_NAME} -n ${NAMESPACE} --patch-file ./kube/deploy-patch.yaml
-
 ifeq (${CLUSTER_TYPE},ROKS)
   ifeq (${K_DEPLOY_NAME},acmeair-mainservice)
 	kubectl apply -n ${NAMESPACE} -f ../../../${IMAGE_NAME}/manifests-mesh/deploy-${K_DEPLOY_NAME}-lb.yaml
   endif
 endif
 
-
-apply_db: create_namespace
+apply_db: create_namespace roks_extra
 	@echo ""
 	@echo "\033[1;30mCreating new deployment in namespace ${NAMESPACE} \033[0m"
 	kubectl apply -n ${NAMESPACE} -f ../../../${IMAGE_NAME}/manifests-mesh/deploy-${K_DEPLOY_NAME}-db.yaml
 
-delete_kube_deploy: check_var_namespace
+delete_kube_deploy: check_var_namespace check_var_cluster_type
 	@echo ""
 	@echo "\033[1;30mDeleting existing deployment ${K_DEPLOY_NAME} in ${NAMESPACE}\033[0m"
 	$(shell kubectl delete deploy ${K_DEPLOY_NAME} -n ${NAMESPACE} > /dev/null 2>&1)
 	$(shell kubectl delete service ${K_SERVICE_NAME} -n ${NAMESPACE} > /dev/null 2>&1)
+ifeq (${CLUSTER_TYPE},ROKS)
+  ifeq (${K_DEPLOY_NAME},acmeair-mainservice)
+	kubectl delete service ${K_SERVICE_NAME}-lb -n ${NAMESPACE}
+  endif
+endif
 
 delete_kube_db: check_var_namespace
 	@echo ""
