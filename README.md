@@ -17,11 +17,11 @@ git clone https://github.com/SanjeevKGupta/blueperf-acmeair.git
 ```
 cd blueperf-acmeair
 
-git clone https://github.com/blueperf/acmeair-authservice-java.git
-git clone https://github.com/blueperf/acmeair-bookingservice-java.git
-git clone https://github.com/blueperf/acmeair-customerservice-java.git
-git clone https://github.com/blueperf/acmeair-flightservice-java.git
-git clone https://github.com/blueperf/acmeair-mainservice-java.git
+git clone https://github.com/SanjeevKGupta/acmeair-authservice-java.git
+git clone https://github.com/SanjeevKGupta/acmeair-bookingservice-java.git
+git clone https://github.com/SanjeevKGupta/acmeair-customerservice-java.git
+git clone https://github.com/SanjeevKGupta/acmeair-flightservice-java.git
+git clone https://github.com/SanjeevKGupta/acmeair-mainservice-ja
 ```
 3. Setup ENV as per your project
 ```
