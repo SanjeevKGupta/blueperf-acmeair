@@ -8,7 +8,7 @@ To clone, build, push and deploy Acme Air micro-services app
   - [Each service and corresponding database together in one namespace](#each-service-with-its-database)
   - [All services in one namespace and all databases in one namespace](#all-services-and-all-databases)   
 - [View application in the browser](#view-application-in-the-browser)
-### Prepare source repos
+## Prepare source repos
 1. Git clone this repo
 ```
 git clone https://github.com/SanjeevKGupta/blueperf-acmeair.git
@@ -33,14 +33,14 @@ export EDGE_DEPLOY=<ex.mesh.rhsi.acmeair>
 # The architecture of the worker nodes
 export ARCH=amd64
 
-### Authenticated IBM CR access ###
+## Authenticated IBM CR access ###
 export CR_HOST=<cr-host>
 export CR_HOST_USERNAME=cr-host-username>
 export CR_HOST_NAMESPACE==cr-host-namespae>
 export CR_APP_API_KEY_RO_PULL=<cr-RO-api-key>
 export CR_APP_API_KEY_RW_PUSH=<cr-RW-api-key>
 ```
-### Build and push images
+## Build and push images
 4. Build and push images into your authenticated container image registry. Each build takes about 10-15 mts. 
 ```
 cd mesh/rhsi/publish
@@ -50,7 +50,7 @@ make build-push-customerservice
 make build-push-flightservice
 make build-push-mainservice
 ```
-### Deploy the application
+## Deploy the application
 If you are deploying directly, you will still need to setup above ENVIRONMENT variables for the `make` command to work. Reach out to me for these values.
 
 5. Log into the target K8s cluster
@@ -64,7 +64,7 @@ This will create all the k8s objects - deploy, pod, services etc.
 - `mainservice` provides the ingress URL used by the app.
 - `mainservice` and `authservice` do not have backend databases. Other three services have.
 
-#### All services and all databases
+### All services and all databases
 All services in one namespace and all databases in one namespace. Namespace cna be on different clouds/clusters
 
 8. Start with deploying databases in one namespace
@@ -108,7 +108,7 @@ Note: Soon application services will go RUNNING as they will now have access to 
 kubectl get pods -n sn-acmeair-services
 ```
 
-### View application in the browser
+## View application in the browser
 17. K8s (IKS) Get the `ingress` from the namespace where `mainservice` is running 
 ```
 kubectl get ing -n <mainservice-namespace>
