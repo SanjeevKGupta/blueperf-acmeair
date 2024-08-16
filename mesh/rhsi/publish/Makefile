@@ -11,15 +11,13 @@
 #
 # Note: main and auth do not have DB, booking, customer and flight have.
 #
-# To deploy service and corresponding db in the same namespace
-# ---======---------------------------------------------------
-# make deploy-mainservice NAMESPACE=zz-test-main CLUSTER_TYPE=ROKS/K8S
-# make deploy-authservice NAMESPACE=zz-test-auth CLUSTER_TYPE=ROKS/K8S
-# make deploy-bookingservice-db NAMESPACE=zz-test-booking CLUSTER_TYPE=ROKS/K8S
-# make deploy-customerservice-db NAMESPACE=zz-test-customer CLUSTER_TYPE=ROKS/K8S
-# make deploy-flightservice-db NAMESPACE=zz-test-flight CLUSTER_TYPE=ROKS/K8S
+# To deploy only database services in target namespace
+# ---======-------------------------------
+# make deploy-booking-db NAMESPACE=zz-test-db CLUSTER_TYPE=ROKS/K8S
+# make deploy-customer-db NAMESPACE=zz-test-db CLUSTER_TYPE=ROKS/K8S
+# make deploy-flight-db NAMESPACE=zz-test-db CLUSTER_TYPE=ROKS/K8S
 #
-# To deploy only service in target namespace
+# To deploy only application services in target namespace
 # ---======---------------------------------
 # make deploy-mainservice NAMESPACE=zz-test-service CLUSTER_TYPE=ROKS/K8S
 # make deploy-authservice NAMESPACE=zz-test-service CLUSTER_TYPE=ROKS/K8S
@@ -27,28 +25,17 @@
 # make deploy-customerservice NAMESPACE=zz-test-service CLUSTER_TYPE=ROKS/K8S
 # make deploy-flightservice NAMESPACE=zz-test-service CLUSTER_TYPE=ROKS/K8S
 #
-# To deploy db service in target namespace
-# ---======-------------------------------
-# make deploy-booking-db NAMESPACE=zz-test-db CLUSTER_TYPE=ROKS/K8S
-# make deploy-customer-db NAMESPACE=zz-test-db CLUSTER_TYPE=ROKS/K8S
-# make deploy-flight-db NAMESPACE=zz-test-db CLUSTER_TYPE=ROKS/K8S
-#
 # To delete deployment and service
 # ---======-----------------------
-# make delete-mainservice NAMESPACE=zz-test
-# make delete-authservice NAMESPACE=zz-test
+# make delete-mainservice NAMESPACE=zz-test-service CLUSTER_TYPE=ROKS/K8S
+# make delete-authservice NAMESPACE=zz-test-service CLUSTER_TYPE=ROKS/K8S
+# make delete-bookingservice NAMESPACE=zz-test-service CLUSTER_TYPE=ROKS/K8S
+# make delete-customerservice NAMESPACE=zz-test-service CLUSTER_TYPE=ROKS/K8S
+# make delete-flightservice NAMESPACE=zz-test-service CLUSTER_TYPE=ROKS/K8S
 #
-# make delete-bookingservice-db NAMESPACE=zz-test
-# make delete-customerservice-db NAMESPACE=zz-test
-# make delete-flightservice-db NAMESPACE=zz-test
-#
-# make delete-bookingservice NAMESPACE=zz-test-service
-# make delete-customerservice NAMESPACE=zz-test-service
-# make delete-flightservice NAMESPACE=zz-test-service
-#
-# make delete-booking-db NAMESPACE=zz-test-db
-# make delete-customer-db NAMESPACE=zz-test-db
-# make delete-flight-db NAMESPACE=zz-test-db
+# make delete-booking-db NAMESPACE=zz-test-db CLUSTER_TYPE=ROKS/K8S
+# make delete-customer-db NAMESPACE=zz-test-db CLUSTER_TYPE=ROKS/K8S
+# make delete-flight-db NAMESPACE=zz-test-db CLUSTER_TYPE=ROKS/K8S
 #
 ####################################################
 
@@ -58,39 +45,39 @@
 
 # Load customized ENV vars for build, push and k8s deployment
 ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-mainservice deploy-mainservice delete-mainservice))
--include hzn.json.mainservice.mk
+-include var.json.mainservice.mk
 endif
 
 ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-authservice deploy-authservice delete-authservice))
--include hzn.json.authservice.mk
+-include var.json.authservice.mk
 endif
 
-ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-bookingservice deploy-bookingservice-db deploy-bookingservice deploy-booking-db delete-bookingservice-db delete-bookingservice delete-booking-db))
--include hzn.json.bookingservice.mk
+ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-bookingservice deploy-bookingservice deploy-booking-db delete-bookingservice delete-booking-db))
+-include var.json.bookingservice.mk
 endif
 
-ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-customerservice deploy-customerservice-db deploy-customerservice deploy-customer-db delete-customerservice-db delete-customerservice delete-customer-db))
--include hzn.json.customerservice.mk
+ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-customerservice deploy-customerservice deploy-customer-db delete-customerservice delete-customer-db))
+-include var.json.customerservice.mk
 endif
 
-ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-flightservice deploy-flightservice-db deploy-flightservice deploy-flight-db delete-flightservice-db delete-flightservice delete-flight-db))
--include hzn.json.flightservice.mk
+ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),build-push-flightservice deploy-flightservice deploy-flight-db delete-flightservice delete-flight-db))
+-include var.json.flightservice.mk
 endif
 
 # Create customized ENV vars for build, push and k8s deployment
-hzn.json.authservice.mk: src/authservice/hzn/hzn.json
+var.json.authservice.mk: src/authservice/vars.json
 	@cat $< | jq -r .MetadataVars | jq -r 'to_entries|map("export \(.key)=\(.value|tostring)")|.[]' > $@
 
-hzn.json.bookingservice.mk: src/bookingservice/hzn/hzn.json
+var.json.bookingservice.mk: src/bookingservice/vars.json
 	@cat $< | jq -r .MetadataVars | jq -r 'to_entries|map("export \(.key)=\(.value|tostring)")|.[]' > $@
 
-hzn.json.customerservice.mk: src/customerservice/hzn/hzn.json
+var.json.customerservice.mk: src/customerservice/vars.json
 	@cat $< | jq -r .MetadataVars | jq -r 'to_entries|map("export \(.key)=\(.value|tostring)")|.[]' > $@
 
-hzn.json.flightservice.mk: src/flightservice/hzn/hzn.json
+var.json.flightservice.mk: src/flightservice/vars.json
 	@cat $< | jq -r .MetadataVars | jq -r 'to_entries|map("export \(.key)=\(.value|tostring)")|.[]' > $@
 
-hzn.json.mainservice.mk: src/mainservice/hzn/hzn.json
+var.json.mainservice.mk: src/mainservice/vars.json
 	@cat $< | jq -r .MetadataVars | jq -r 'to_entries|map("export \(.key)=\(.value|tostring)")|.[]' > $@
 
 #build and push images. Bulid takes long time
@@ -116,14 +103,14 @@ deploy-mainservice: create_image_pull_secret apply_kube
 deploy-authservice: create_image_pull_secret apply_kube
 	@echo ${DOCKER_IMAGE}
 
-deploy-bookingservice-db: create_image_pull_secret apply_kube apply_db
-	@echo ${DOCKER_IMAGE}
+#deploy-bookingservice-db: create_image_pull_secret apply_kube apply_db
+#	@echo ${DOCKER_IMAGE}
 
-deploy-customerservice-db: create_image_pull_secret apply_kube apply_db
-	@echo ${DOCKER_IMAGE}
+#deploy-customerservice-db: create_image_pull_secret apply_kube apply_db
+#	@echo ${DOCKER_IMAGE}
 
-deploy-flightservice-db: create_image_pull_secret apply_kube apply_db
-	@echo ${DOCKER_IMAGE}
+#deploy-flightservice-db: create_image_pull_secret apply_kube apply_db
+#	@echo ${DOCKER_IMAGE}
 
 deploy-bookingservice: create_image_pull_secret apply_kube
 	@echo ${DOCKER_IMAGE}
@@ -150,14 +137,14 @@ delete-mainservice: delete_kube_deploy
 delete-authservice: delete_kube_deploy
 	@echo "Deleted ${K_DEPLOY_NAME}"
 
-delete-bookingservice-db: delete_kube_deploy delete_kube_db
-	@echo "Deleted ${K_DEPLOY_NAME}"
+#delete-bookingservice-db: delete_kube_deploy delete_kube_db
+#	@echo "Deleted ${K_DEPLOY_NAME}"
 
-delete-customerservice-db: delete_kube_deploy delete_kube_db
-	@echo "Deleted ${K_DEPLOY_NAME}"
+#delete-customerservice-db: delete_kube_deploy delete_kube_db
+#	@echo "Deleted ${K_DEPLOY_NAME}"
 
-delete-flightservice-db: delete_kube_deploy delete_kube_db
-	@echo "Deleted ${K_DEPLOY_NAME}"
+#delete-flightservice-db: delete_kube_deploy delete_kube_db
+#	@echo "Deleted ${K_DEPLOY_NAME}"
 
 delete-bookingservice: delete_kube_deploy
 	@echo "Deleted ${K_DEPLOY_NAME}"
@@ -252,7 +239,7 @@ apply_db: create_namespace roks_extra
 	@echo "\033[1;30mCreating new deployment in namespace ${NAMESPACE} \033[0m"
 	kubectl apply -n ${NAMESPACE} -f ../../../${IMAGE_NAME}/manifests-mesh/deploy-${K_DEPLOY_NAME}-db.yaml
 
-delete_kube_deploy: check_var_namespace check_var_cluster_type
+delete_kube_deploy_o: check_var_namespace check_var_cluster_type
 	@echo ""
 	@echo "\033[1;30mDeleting existing deployment ${K_DEPLOY_NAME} in ${NAMESPACE}\033[0m"
 	$(shell kubectl delete deploy ${K_DEPLOY_NAME} -n ${NAMESPACE} > /dev/null 2>&1)
@@ -263,8 +250,18 @@ ifeq (${CLUSTER_TYPE},ROKS)
   endif
 endif
 
-delete_kube_db: check_var_namespace
+delete_kube_deploy: check_var_namespace check_var_cluster_type
+	@echo ""
+	@echo "\033[1;30mDeleting existing deployment ${K_DB_NAME} in ${NAMESPACE}\033[0m"
+	kubectl delete -n ${NAMESPACE} -f ../../../${IMAGE_NAME}/manifests-mesh/deploy-${K_DEPLOY_NAME}.yaml
+
+delete_kube_db_o: check_var_namespace
 	@echo ""
 	@echo "\033[1;30mDeleting existing deployment ${K_DB_NAME} in ${NAMESPACE}\033[0m"
 	$(shell kubectl delete deploy ${K_DB_NAME} -n ${NAMESPACE} > /dev/null 2>&1)
 	$(shell kubectl delete service ${K_DB_NAME} -n ${NAMESPACE} > /dev/null 2>&1)
+
+delete_kube_db: check_var_namespace
+	@echo ""
+	@echo "\033[1;30mDeleting existing deployment ${K_DB_NAME} in ${NAMESPACE}\033[0m"
+	kubectl delete -n ${NAMESPACE} -f ../../../${IMAGE_NAME}/manifests-mesh/deploy-${K_DEPLOY_NAME}-db.yaml
